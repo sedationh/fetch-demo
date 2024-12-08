@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>fetch demo</title>
+    <style>
+      pre {
+        border: 1px solid;
+        padding: 10px;
+        min-height: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <pre id="data"></pre>
+    <button id="fetch-data">Fetch Data</button>
+
+    <button id="stream-fetch">Stream Fetch</button>
+
+    <script>
+      document
+        .getElementById("fetch-data")
+        .addEventListener("click", async () => {
+          console.log("fetching data start");
+          console.time("fetch-data");
+          const response = await fetch("/data");
+          console.timeLog("fetch-data");
+          const data = await response.text();
+          console.timeEnd("fetch-data");
+          document.getElementById("data").textContent = JSON.stringify(data);
+        });
+
+      document
+        .getElementById("stream-fetch")
+        .addEventListener("click", async () => {
+          console.log("streaming fetch");
+          const response = await fetch("/data");
+          const reader = response.body.getReader();
+          let result = "";
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            result += new TextDecoder().decode(value);
+            document.getElementById("data").textContent = result;
+          }
+          console.log(result);
+        });
+    </script>
+  </body>
+</html>
